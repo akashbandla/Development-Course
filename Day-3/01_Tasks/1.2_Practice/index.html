@@ -1,0 +1,338 @@
+ <!-- Mark -->
+ <mark>matched text</mark>
+
+ <hr>
+ <hr>
+
+ <!-- sub & sup -->
+ <h1>H<sub>2</sub>O, x<sup>2</sup></h1>
+
+ <hr>
+ <hr>
+
+
+ <!-- blockquotes, quotes, pre, code -->
+<blockquote>
+    Success is not final, failure is not fatal: it is the courage to continue that counts.
+</blockquote>
+
+<article>
+    <h2>Interview with CEO</h2>
+
+    <blockquote>
+        Our mission is to make technology accessible to everyone.
+    </blockquote>
+</article>
+
+<blockquote>
+    <p>Programming isn't about what you know.</p>
+
+    <p>It's about what you can figure out.</p>
+</blockquote>
+
+
+<blockquote cite="https://example.com">
+    Success usually comes to those who are too busy to be looking for it.
+</blockquote>
+
+
+<p>
+    My manager said,
+    <q>Deploy the application today.</q>
+</p>
+
+
+<pre>
+    Hello
+
+        Akash
+
+    Welcome
+</pre>
+
+
+<pre><code>
+    const name = "Akash";
+    console.log(name);
+</code></pre>
+
+
+<pre>
+const name = "Akash";
+console.log(name);
+</pre>
+
+
+<code>
+    const name = "Akash";
+    console.log(name);
+</code>
+
+<br>
+
+Run <code>npm install</code>
+
+
+<br>
+
+<p>Use the <code>git clone</code> command to clone a repository.</p>
+
+ Press <kbd>Ctrl+C</kbd>
+
+ <br>
+
+ <abbr title="HyperText...">HTML</abbr>
+
+<hr>
+<hr>
+
+<!-- List tags -->
+ <ul>
+    <li>HTML</li>
+    <li>CSS</li>
+    <li>JavaScript</li>
+</ul>
+
+
+<ol type="A">
+    <li>HTML</li>
+    <li>CSS</li>
+    <li>JavaScript</li>
+</ol>
+
+<ol type="i">
+    <li>HTML</li>
+    <li>CSS</li>
+    <li>JavaScript</li>
+</ol>
+
+<ol reversed>
+    <li>HTML</li>
+    <li>CSS</li>
+    <li>JavaScript</li>
+</ol>
+
+<ol start="5">
+    <li>HTML</li>
+    <li>CSS</li>
+    <li>JavaScript</li>
+</ol>
+
+
+<dl>
+    <dt>HTML</dt>
+    <dd>HyperText Markup Language</dd>
+</dl>
+
+
+
+<dl>
+    <dt>HTML</dt>
+    <dd>Markup Language</dd>
+    <dt>CSS</dt>
+    <dd>Styles Web Pages</dd>
+</dl>
+
+
+<dl>
+<dt>What is HTML?</dt>
+<dd>
+HTML is the standard markup language used to create webpages.
+</dd>
+
+<dt>What is CSS?</dt>
+
+<dd>
+CSS styles HTML elements.
+</dd>
+
+</dl>
+
+
+<dl>
+<dt>Java</dt>
+
+<dd>Programming Language</dd>
+<dd>Object-Oriented</dd>
+<dd>Platform Independent</dd>
+
+</dl>
+
+
+<dl>
+<dt>HTML</dt>
+<dt>HyperText Markup Language</dt>
+
+<dd>
+The standard markup language for creating webpages.
+</dd>
+</dl>
+
+<hr><hr>
+
+
+<!-- Links & Navigation tags -->
+<a href="https://github.com/", target="_blank", rel="noopener noreferrer"" >GitHub</a>
+
+<figure>
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQkVexxzbg3jvRGCioSPljjTfsjn7CWC45h3L40QZwXjQ&s=10" width="200px"  alt="logo.png">
+    <figcaption>1.1 Comanpy Logo</figcaption>
+</figure>
+
+<video controls  muted loop width="500px" poster="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQkVexxzbg3jvRGCioSPljjTfsjn7CWC45h3L40QZwXjQ&s=10">
+    <source src="./assets/mov_bbb.mp4">
+</video>
+
+
+<iframe width="1183" height="665" src="https://www.youtube.com/embed/v5LlVB3fqjY?list=RDv5LlVB3fqjY" title="KALYANI [LYRICS] - SHREYA GHOSHAL | ARJN | KDS | FIFTY4 | RONN" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+
+<hr><hr>
+
+
+<!-- Table -->
+
+<table border="1">
+    <caption>
+      Employee Details
+    </caption>
+
+    <thead>
+        <tr>
+            <th colspan="3">Student Details</th>
+        </tr>
+
+        <tr>
+            <th>Name</th>
+            <th>Age</th>
+            <th>City</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr>
+            <td>Akash</td>
+            <td>23</td>
+            <td>Nellore</td>
+        </tr>
+
+        <tr>
+            <td>Rahul</td>
+            <td>24</td>
+            <td>Hyderabad</td>
+        </tr>
+    </tbody>
+
+    <tfoot>
+        <tr>
+           <td colspan="3">Total Employees : 2</td>
+        </tr>
+    </tfoot>
+</table>
+
+<hr>
+<hr>
+
+<!-- Form -->
+ <form action="/submit" method="post" autocomplete="on" novalidate>
+    <!-- Personal details -->
+    <fieldset>
+        <legend>Personal Details</legend>
+
+        <label for="fullname">Name</label>
+        <input type="text" id="fullname" name="fullname" autocomplete="on" placeholder="Please Enter name">
+
+        <br>
+
+        <label for="email">Email</label>
+        <input type="email" name="email" id="email" placeholder="your@gmail.com">
+
+        <br>
+
+        <label for="age">Age</label>
+        <input type="number" id="age" name="age" min="18" max="95" placeholder="Ente">
+
+        <br>
+
+        <label for="dob">Date of Birth</label>
+        <input type="date" name="dob" id="dob">
+
+        <br>
+
+        <label for="password">Password</label>
+        <input type="password" name="password" id="password" placeholder="Enter your password">
+
+        <br>
+
+        <label for="resume">Upload Resume</label>
+        <input type="file" name="resume" id="resume" accept=".pdf,.word">
+
+        <br>
+
+        <label for="country">Country</label>
+        <select name="country" id="country">
+            <option value="">Select an Option</option>
+            <option value="India" selected>India</option>
+            <option value="India">US</option>
+            <option value="India">UK</option>
+            <option value="India"></option>
+        </select>
+
+        <br>
+
+        <label for="address">Address</label>
+        <textarea name="address" id="address" placeholder="Please Enter your Address" cols="50"></textarea>
+    </fieldset>
+
+    <!-- Gender -->
+    <fieldset>
+        <legend>Gender</legend>
+        <input type="radio" name="gender" id="male" value="Male">
+        <label for="male">Male</label>
+
+        <input type="radio" name="gender" id="female" value="Female">
+        <label for="female">Female</label>
+    </fieldset>
+
+    <!-- Skiils -->
+     <fieldset>
+        <legend>Skills</legend>
+        <input type="checkbox" name="skills" id="html" value="HTML">
+        <label for="html">HTML</label>
+
+        <input type="checkbox" name="skills" id="css" value="CSS">
+        <label for="css">CSS</label>
+
+        <input type="checkbox" name="skills" id="Javascript" value="JS">
+        <label for="Javascript">JS</label>
+     </fieldset>
+
+     <!-- Special category -->
+      <fieldset>
+        <legend>Special category</legend>
+
+        <label for="empid">EmpId</label>
+        <input type="text" name="empid" id="empid" readonly value="EMP515">
+
+        <br>
+
+        <label for="company">Company</label>
+        <input type="text" name="company" id="company" disabled value="Terralogic">
+
+        <br>
+
+        <input type="text" name="userid" id="userid" hidden value="user515">
+      </fieldset>
+
+
+     <input type="button" value="Submit Button">
+     <button type="button">Button</button>
+     <button type="submit">Submit</button>
+     <button type="reset">Reset</button>
+ </form>
+
+ <hr>
+ <hr>
+ 
+
+
