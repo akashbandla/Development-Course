@@ -1,0 +1,17 @@
+{
+  "name": "sample-server",
+  "version": "1.0.0",
+  "description": "Sample Node Server",
+  "license": "ISC",
+  "author": "akashbandla",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "test": "node server.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "mongoose": "^8.0.0"
+  }
+}

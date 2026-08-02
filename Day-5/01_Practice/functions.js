@@ -1,29 +1,25 @@
-// Declaration - hoisted
-greet();
+// --------------- Function Declaration ----------------------
+console.log(sayHello());
 
-function greet(){
-    console.log("Hi!");
-};
+function sayHello(){
+    console.log('This is the example for the Function Declaration')
+    return "Hello From the sayHello function";
+}
 
+console.log('==================================================')
 
-// Expression     - not hoisted
-sayBye();         // TypeError
+// --------------- Function Expression ------------------------
+const sayHi = function (){
+    console.log('This is the example for the Function Expression')
+    return "Hello From the sayHi function";
+}
 
-const sayBye = function () {
-    console.log("Bye!");
-};
+console.log(sayHi())
 
+console.log('==================================================')
 
-// Arrow Functions
-const team = {
-    name : "Devs",
-    regular: function () {
-        console.log(this.name);     // "Devs"
-    },
-    arrow: () => {
-        console.log(this.name);     // undefined
-    }
-};
+// --------------- Arrow Function ------------------------------
 
-team.regular();                     // "Devs"
-team.arrow();                       // undefined
+const arrowFunction = () => "Hello from the Arrow Function"
+
+console.log(arrowFunction())
