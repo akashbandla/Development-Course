@@ -19,3 +19,26 @@ try{
 }finally{
     console.log("Operation compelted");
 }
+
+
+
+
+// ======== custom error class =============
+class ValidationError extends Error {
+    constructor(field, message) {
+    super(message);
+    this.name = 'ValidationError';
+    this.field = field;
+    }
+}
+
+
+try {
+    throw new ValidationError('email', 'Invalid email');
+} catch (err) {
+if (err instanceof ValidationError) {
+    highlightField(err.field);
+}
+} finally {
+    hideLoadingSpinner();  // always runs
+}

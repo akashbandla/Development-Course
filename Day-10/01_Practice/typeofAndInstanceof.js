@@ -34,7 +34,7 @@ function parseApiResult(data){
         return data.map(parseApiResult);   // recursive into a list
     }
 
-    if(data===null || data!=="Object"){
+    if(data===null || typeof data!=="object"){
         return data;
     }
 
