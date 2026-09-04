@@ -7,6 +7,7 @@ import { checkIdExists } from "../utils/db.utils.js";
 import { getNextSequence } from "../utils/counter.utils.js";
 import { activeFilter } from "../utils/dbFilter.utils.js";
 import { tasksProjectUserPopulate } from "../utils/populate.utils.js";
+import auditLogService from "./auditLog.service.js";
 
 
 class TaskService {
@@ -22,6 +23,7 @@ class TaskService {
             throw err;
         }
     }
+
 
     async getTaskById(taskId) {
         try {
@@ -45,7 +47,7 @@ class TaskService {
     }
 
 
-    async createTask(task) {
+    async createTask(task, auditContext) {
         try {
 
             // Check whether project exists
@@ -75,6 +77,24 @@ class TaskService {
 
             const createdTask = await Tasks.create(task);
 
+
+            await auditLogService.createAuditLog({
+                action: "TASK_CREATED",
+                entity: "TASK",
+                entityId: createdTask._id,
+                performedBy: auditContext.performedBy,
+
+                details: {
+                    taskId: createdTask.taskId,
+                    taskName: createdTask.taskName,
+                    projectId: createdTask.projectId,
+                    userId: createdTask.userId
+                },
+
+                auditContext
+            });
+
+
             return createdTask.populate(tasksProjectUserPopulate);
         } catch (err) {
             throw err;
@@ -82,7 +102,7 @@ class TaskService {
     }
 
 
-    async updateTask(taskId, payload) {
+    async updateTask(taskId, payload, auditContext) {
         try {
             if (!mongoose.isValidObjectId(taskId)) {
                 throw new Error("Invalid mongoose Id");
@@ -112,6 +132,53 @@ class TaskService {
                 }
             }
 
+
+            // Get existing task before update
+            const existingTask = await Tasks.findOne({
+                _id: taskId,
+                ...activeFilter
+            });
+
+            if (!existingTask) {
+                throw new Error(
+                    "Task not found or task is already deleted"
+                );
+            }
+
+
+            const changes = {};
+
+            if (
+                payload.taskName !== undefined &&
+                existingTask.taskName !== payload.taskName
+            ) {
+                changes.taskName = {
+                    from: existingTask.taskName,
+                    to: payload.taskName
+                };
+            }
+
+            if (
+                payload.projectId !== undefined &&
+                String(existingTask.projectId) !== String(payload.projectId)
+            ) {
+                changes.projectId = {
+                    from: existingTask.projectId,
+                    to: payload.projectId
+                };
+            }
+
+            if (
+                payload.userId !== undefined &&
+                String(existingTask.userId) !== String(payload.userId)
+            ) {
+                changes.userId = {
+                    from: existingTask.userId,
+                    to: payload.userId
+                };
+            }
+
+
             const updatedTask = await Tasks.findOneAndUpdate(
                 {
                     _id: taskId,
@@ -130,6 +197,23 @@ class TaskService {
                 );
             }
 
+
+            await auditLogService.createAuditLog({
+                action: "TASK_UPDATED",
+                entity: "TASK",
+                entityId: updatedTask._id,
+                performedBy: auditContext.performedBy,
+
+                changes: changes,
+
+                details: {
+                    taskId: updatedTask.taskId
+                },
+
+                auditContext
+            });
+
+
             return updatedTask;
         } catch (err) {
             throw err;
@@ -137,7 +221,7 @@ class TaskService {
     }
 
 
-    async deleteTask(taskId, deletedBy) {
+    async deleteTask(taskId, deletedBy, auditContext) {
         try {
             if (!mongoose.isValidObjectId(taskId)) {
                 throw new Error("Invalid mongoose Id");
@@ -175,6 +259,23 @@ class TaskService {
                     "Task not found or task is already deleted"
                 );
             }
+
+
+            await auditLogService.createAuditLog({
+                action: "TASK_DELETED",
+                entity: "TASK",
+                entityId: deletedTask._id,
+                performedBy: auditContext.performedBy,
+
+                details: {
+                    taskId: deletedTask.taskId,
+                    taskName: deletedTask.taskName,
+                    deletedBy: deletedTask.deletedBy
+                },
+
+                auditContext
+            });
+
 
             return deletedTask;
         } catch (err) {

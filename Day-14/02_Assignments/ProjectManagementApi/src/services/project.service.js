@@ -6,6 +6,7 @@ import { checkIdExists } from "../utils/db.utils.js";
 import { getNextSequence } from "../utils/counter.utils.js";
 import { activeFilter } from "../utils/dbFilter.utils.js";
 import { projectUsersPopulate } from "../utils/populate.utils.js";
+import auditLogService from "./auditLog.service.js";
 
 
 class ProjectService {
@@ -45,7 +46,7 @@ class ProjectService {
     }
 
 
-    async createProject(project) {
+    async createProject(project, auditContext) {
         try {
             const [
                 managerExists,
@@ -53,11 +54,11 @@ class ProjectService {
                 createdByExists,
                 updatedByExists
             ] = await Promise.all([
-                    checkIdExists(Users, project.managerId),
-                    checkIdExists(Users, project.ownerId),
-                    checkIdExists(Users, project.createdBy),
-                    checkIdExists(Users, project.updatedBy)
-                ]);
+                checkIdExists(Users, project.managerId),
+                checkIdExists(Users, project.ownerId),
+                checkIdExists(Users, project.createdBy),
+                checkIdExists(Users, project.updatedBy)
+            ]);
 
             if (!managerExists) {
                 throw new Error("Manager does not exist");
@@ -82,6 +83,25 @@ class ProjectService {
 
             const createdProject = await Projects.create(project);
 
+
+            await auditLogService.createAuditLog({
+                action: "PROJECT_CREATED",
+                entity: "PROJECT",
+                entityId: createdProject._id,
+                performedBy: auditContext.performedBy,
+
+                details: {
+                    projectId: createdProject.projectId,
+                    projectName: createdProject.projectName,
+                    managerId: createdProject.managerId,
+                    ownerId: createdProject.ownerId,
+                    createdBy: createdProject.createdBy
+                },
+
+                auditContext
+            });
+
+
             return createdProject.populate(projectUsersPopulate);
         } catch (err) {
             throw err;
@@ -89,7 +109,7 @@ class ProjectService {
     }
 
 
-    async updateProject(projectId, payload) {
+    async updateProject(projectId, payload, auditContext) {
         try {
             if (!mongoose.isValidObjectId(projectId)) {
                 throw new Error("Invalid mongoose Id");
@@ -142,6 +162,52 @@ class ProjectService {
                 }
             }
 
+            // Get existing project before update
+            const existingProject = await Projects.findOne({
+                _id: projectId,
+                ...activeFilter
+            });
+
+            if (!existingProject) {
+                throw new Error(
+                    "Project not found or already deleted"
+                );
+            }
+
+            const changes = {};
+
+            if (payload.projectName !== undefined &&
+                existingProject.projectName !== payload.projectName) {
+                changes.projectName = {
+                    from: existingProject.projectName,
+                    to: payload.projectName
+                };
+            }
+
+            if (payload.managerId !== undefined &&
+                String(existingProject.managerId) !== String(payload.managerId)) {
+                changes.managerId = {
+                    from: existingProject.managerId,
+                    to: payload.managerId
+                };
+            }
+
+            if (payload.ownerId !== undefined &&
+                String(existingProject.ownerId) !== String(payload.ownerId)) {
+                changes.ownerId = {
+                    from: existingProject.ownerId,
+                    to: payload.ownerId
+                };
+            }
+
+            if (payload.updatedBy !== undefined &&
+                String(existingProject.updatedBy) !== String(payload.updatedBy)) {
+                changes.updatedBy = {
+                    from: existingProject.updatedBy,
+                    to: payload.updatedBy
+                };
+            }
+
             const updatedProject =
                 await Projects.findOneAndUpdate(
                     {
@@ -161,6 +227,21 @@ class ProjectService {
                 );
             }
 
+            await auditLogService.createAuditLog({
+                action: "PROJECT_UPDATED",
+                entity: "PROJECT",
+                entityId: updatedProject._id,
+                performedBy: auditContext.performedBy,
+
+                changes: changes,
+
+                details: {
+                    projectId: updatedProject.projectId
+                },
+
+                auditContext
+            });
+
             return updatedProject;
         } catch (err) {
             throw err;
@@ -168,7 +249,7 @@ class ProjectService {
     }
 
 
-    async deleteProject(projectId, deletedBy) {
+    async deleteProject(projectId, deletedBy, auditContext) {
         try {
 
             if (!mongoose.isValidObjectId(projectId)) {
@@ -212,6 +293,23 @@ class ProjectService {
                     "Project not found or already deleted"
                 );
             }
+
+
+            await auditLogService.createAuditLog({
+                action: "PROJECT_DELETED",
+                entity: "PROJECT",
+                entityId: deletedProject._id,
+                performedBy: auditContext.performedBy,
+
+                details: {
+                    projectId: deletedProject.projectId,
+                    projectName: deletedProject.projectName,
+                    deletedBy: deletedProject.deletedBy
+                },
+
+                auditContext
+            });
+
 
             return deletedProject;
         } catch (err) {

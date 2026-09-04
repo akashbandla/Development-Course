@@ -8,7 +8,7 @@ const JWT_REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN;
 function generateAcessToken(user){
     return jwt.sign(
         {
-            sub: user._id,
+            sub: user._id || user.sub,
             name: user.name,
             userId: user.userId,
             role: user.role,
