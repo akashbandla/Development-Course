@@ -1,7 +1,12 @@
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 
 import Users from "../models/user.model.js";
 import auditLogService from "./auditLog.service.js";
+import PasswordResets from "../models/passwordReset.model.js";
+import emailService from "./email.service.js";
+
+import { generateOtp } from "../utils/otp.utils.js";
 
 import {
     generateAcessToken,
@@ -158,6 +163,178 @@ class AuthService {
             return newAccessToken;
 
         }catch(err){
+            throw err;
+        }
+    }
+
+    async forgotPassword(email, auditContext) {
+        try {
+
+            const user = await Users.findOne({
+                email: email,
+                isDeleted: false
+            });
+
+            if (!user) {
+                await auditLogService.createAuditLog({
+                    action: "PASSWORD_RESET_REQUESTED",
+                    entity: "USER",
+                    performedBy: null,
+                    details: {
+                        email: email,
+                        userFound: false
+                    },
+                    auditContext
+                });
+
+                return;
+            }
+
+            await PasswordResets.updateMany(
+                {
+                    userId: user._id,
+                    used: false
+                },
+                {
+                    $set: {
+                        used: true
+                    }
+                }
+            );
+
+            const otp = generateOtp();
+
+            const otpHash = await bcrypt.hash(otp, 10);
+
+            const otpExpiresAt = new Date(
+                Date.now() + 10 * 60 * 1000
+            );
+
+            await PasswordResets.create({
+                userId: user._id,
+                otpHash: otpHash,
+                otpExpiresAt: otpExpiresAt
+            });
+
+            await emailService.sendPasswordResetOtp(
+                user.email,
+                otp
+            );
+
+            await auditLogService.createAuditLog({
+                action: "PASSWORD_RESET_REQUESTED",
+                entity: "USER",
+                entityId: user._id,
+                performedBy: null,
+                details: {
+                    email: user.email
+                },
+                auditContext
+            });
+
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    async resetPassword(email, otp, newPassword, auditContext) {
+        try {
+            const user = await Users.findOne({
+                email: email,
+                isDeleted: false
+            });
+
+            if (!user) {
+                throw new Error("Invalid password reset request");
+            }
+
+            const resetRequest = await PasswordResets.findOne({
+                userId: user._id,
+                used: false
+            }).sort({
+                createdAt: -1
+            });
+
+            if (!resetRequest) {
+                throw new Error(
+                    "Invalid or expired password reset OTP"
+                );
+            }
+
+            if (resetRequest.otpExpiresAt < new Date()) {
+
+                resetRequest.used = true;
+
+                await resetRequest.save();
+
+                throw new Error(
+                    "Password reset OTP has expired"
+                );
+            }
+
+            
+            if (resetRequest.otpAttempts >= 5) {
+
+                resetRequest.used = true;
+                await resetRequest.save();
+
+                throw new Error(
+                    "Too many invalid OTP attempts"
+                );
+            }
+
+            
+            const isValidOtp = await bcrypt.compare(
+                otp,
+                resetRequest.otpHash
+            );
+
+            if (!isValidOtp) {
+
+                resetRequest.otpAttempts += 1;
+
+                if (resetRequest.otpAttempts >= 5) {
+                    resetRequest.used = true;
+                }
+
+                await resetRequest.save();
+
+                throw new Error(
+                    "Invalid password reset OTP"
+                );
+            }
+
+            
+            const hashedPassword = await bcrypt.hash(
+                newPassword,
+                12
+            );
+
+        
+            user.password = hashedPassword;
+            await user.save();
+
+        
+            resetRequest.used = true;
+            await resetRequest.save();
+
+           
+            await auditLogService.createAuditLog({
+                action: "PASSWORD_RESET_SUCCESS",
+                entity: "USER",
+                entityId: user._id,
+                performedBy: user._id,
+                details: {
+                    email: user.email
+                },
+                auditContext
+            });
+
+            return {
+                message: "Password reset successfully"
+            };
+
+        } catch (err) {
             throw err;
         }
     }
